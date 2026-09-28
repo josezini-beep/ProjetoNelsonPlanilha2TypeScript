@@ -1,73 +1,137 @@
+import express = require("express");
 import fs = require("fs");
 
-const conteudo: string[] = [];
+const app = express();
+
+app.use(express.json());
+
+const pessoas: any[] = [];
+
+
+
+//le os arquivos
+
 
 for (let i = 1; i <= 10; i++) {
-    conteudo[i] = fs.readFileSync(`pessoas_${i}.csv`, "utf8");
+
+    const conteudo: string = fs.readFileSync(
+        `pessoas_${i}.csv`,
+        "utf8"
+    );
+
+    const linhas: string[] = conteudo
+        .trim()
+        .split("\n");
+
+    // remove o cabeçalho
+    linhas.shift();
+
+
+    for (const linha of linhas) {
+
+        const Dados: string[] = linha.split(",");
+
+        const pessoa = {
+            nome: Dados[0],
+            email: Dados[1],
+            cidade: Dados[2],
+            profissao: Dados[3],
+            idade: Dados[4],
+            cpf: Dados[5]
+        };
+
+        pessoas.push(pessoa);
+    }
 }
 
-const textoCompleto: string = conteudo.join("\n");
 
-const linhas: string[] = textoCompleto
-    .trim()
-    .split("\n");
 
-linhas.shift();
+// api
 
-const resultado: string[] = [];
+app.get("/", (req, res) => {
 
-for (const linha of linhas) {
-    
-    const Dados: string[] = linha.split(",");
+    res.status(200).json({
+        mensagem: "API funcionando"
+    });
 
-    const pessoa = {
-        nome: Dados[0],
-        email: Dados[1],
-        cidade: Dados[2],
-        profissao: Dados[3],
-        idade: Dados[4],
-        cpf: Dados[5]
+});
+
+
+
+// todas as pessoas
+
+app.get("/pessoas", (req, res) => {
+
+    res.status(200).json(pessoas);
+
+});
+
+
+
+// nova pessoa
+
+
+app.post("/pessoas", (req, res) => {
+
+    const novaPessoa = {
+        nome: req.body.nome,
+        email: req.body.email,
+        cidade: req.body.cidade,
+        profissao: req.body.profissao,
+        idade: req.body.idade,
+        cpf: req.body.cpf
     };
 
+    pessoas.push(novaPessoa);
+
+    res.status(201).json({
+        mensagem: "Pessoa cadastrada com sucesso",
+        pessoa: novaPessoa
+    });
+});
 
 
-    if (Number(Dados[4]) > 30) {
 
-        if (pessoa.profissao !== undefined && pessoa.cpf !== undefined) {
+// remover pessoa só pelo cpf
 
-            if (pessoa.profissao.includes("Gerente") ||
-                pessoa.profissao.includes("Diretor") ||
-                pessoa.profissao.includes("Coordenador") ||
-                pessoa.profissao.includes("Encarregado") ||
-                pessoa.profissao.includes("Líder") ||
-                pessoa.profissao.includes("Chefe") ||
-                pessoa.profissao.includes("Supervisor")) 
-                {
-                if (pessoa.cpf !== undefined) {
 
-    if (
-        pessoa.cpf[0] === "5" ||
-        pessoa.cpf[0] === "7" ||
-        pessoa.cpf[0] === "9"
-    ) {
+app.delete("/pessoas/:cpf", (req, res) => {
 
-        resultado.push(Dados.join(","));
+    const cpf = req.params.cpf;
+
+    const index = pessoas.findIndex(pessoa => {
+        return pessoa.cpf === cpf;
+    });
+
+
+    if (index === -1) {
+
+        return res.status(404).json({
+            mensagem: "Pessoa não encontrada"
+        });
 
     }
-                }
-            }
-        }
-    }
-}
 
-const textoFinal: string = resultado
-    .sort()
-    .join("\n");
 
-fs.writeFileSync(
-    "nomes.txt",
-    textoFinal,
-    "utf8"
-);
+    const pessoaRemovida = pessoas[index];
 
-console.log(textoFinal);
+    pessoas.splice(index, 1);
+
+
+    res.status(200).json({
+        mensagem: "Pessoa removida com sucesso",
+        pessoa: pessoaRemovida
+    });
+
+});
+
+
+
+// INICIAR SERVIDOR
+
+
+app.listen(3000, () => {
+
+    console.log("Servidor rodando na porta 3000");
+
+});
