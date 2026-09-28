@@ -1,6 +1,14 @@
 import express = require("express");
 import fs = require("fs");
 
+    interface Pessoa {
+    nome: string;
+    email: string;
+    cidade: string;
+    profissao: string;
+    idade: number;
+    cpf: string;}
+
 const app = express();
 
 app.use(express.json());
@@ -27,17 +35,18 @@ for (let i = 1; i <= 10; i++) {
     linhas.shift();
 
 
+
     for (const linha of linhas) {
 
         const Dados: string[] = linha.split(",");
 
-        const pessoa = {
+        const pessoa: Pessoa = {
             nome: Dados[0],
             email: Dados[1],
             cidade: Dados[2],
             profissao: Dados[3],
-            idade: Dados[4],
-            cpf: Dados[5]
+            idade: parseInt(Dados[4]),
+            cpf: Dados[5] 
         };
 
         pessoas.push(pessoa);
@@ -73,7 +82,7 @@ app.get("/pessoas", (req, res) => {
 
 app.post("/pessoas", (req, res) => {
 
-    const novaPessoa = {
+    const novaPessoa: Pessoa = {
         nome: req.body.nome,
         email: req.body.email,
         cidade: req.body.cidade,
@@ -127,7 +136,7 @@ app.delete("/pessoas/:cpf", (req, res) => {
 
 
 
-// INICIAR SERVIDOR
+// inicia o servidor
 
 
 app.listen(3000, () => {
