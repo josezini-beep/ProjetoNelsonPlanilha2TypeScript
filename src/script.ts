@@ -57,6 +57,23 @@ fs.writeFileSync(
 
 // api
 
+app.get("/pessoas/:cpf", (req, res) => {
+
+    const cpf = req.params.cpf;
+
+    const pessoa = pessoas.find(pessoa => {
+        return pessoa.cpf === cpf;
+    });
+
+    if (!pessoa) {
+        return res.status(404).json({
+            mensagem: "Pessoa não encontrada"
+        });
+    }
+
+    res.status(200).json(pessoa);
+});
+
 app.get("/", (req, res) => {
 
     res.status(200).json({
