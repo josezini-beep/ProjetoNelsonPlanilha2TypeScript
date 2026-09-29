@@ -13,9 +13,7 @@ const app = express();
 
 app.use(express.json());
 
-const pessoas: any[] = [];
-
-
+const pessoas: Pessoa[] = [];
 
 //le os arquivos
 
@@ -29,31 +27,27 @@ for (let i = 1; i <= 10; i++) {
 
     const linhas: string[] = conteudo
         .trim()
-        .split("\n");
+        .split(/\n?\r/);
 
     // remove o cabeçalho
     linhas.shift();
-
-
 
     for (const linha of linhas) {
 
         const Dados: string[] = linha.split(",");
 
         const pessoa: Pessoa = {
-            nome: Dados[0],
-            email: Dados[1],
-            cidade: Dados[2],
-            profissao: Dados[3],
-            idade: parseInt(Dados[4]),
-            cpf: Dados[5] 
+            nome: Dados[0].trim(),
+            email: Dados[1].trim(),
+            cidade: Dados[2].trim(),
+            profissao: Dados[3].trim(),
+            idade: parseInt(Dados[4].trim()),
+            cpf: Dados[5].trim()
         };
 
         pessoas.push(pessoa);
     }
 }
-
-
 
 // api
 
@@ -99,8 +93,6 @@ app.post("/pessoas", (req, res) => {
     });
 });
 
-
-
 // remover pessoa só pelo cpf
 
 
@@ -134,10 +126,7 @@ app.delete("/pessoas/:cpf", (req, res) => {
 
 });
 
-
-
 // inicia o servidor
-
 
 app.listen(3000, () => {
 
