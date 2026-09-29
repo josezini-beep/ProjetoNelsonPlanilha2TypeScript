@@ -10,22 +10,23 @@ for (let i = 1; i <= 10; i++) {
     const conteudo = fs.readFileSync(`pessoas_${i}.csv`, "utf8");
     const linhas = conteudo
         .trim()
-        .split("\n");
+        .split(/\n?\r/);
     // remove o cabeçalho
     linhas.shift();
     for (const linha of linhas) {
         const Dados = linha.split(",");
         const pessoa = {
-            nome: Dados[0],
-            email: Dados[1],
-            cidade: Dados[2],
-            profissao: Dados[3],
-            idade: Dados[4],
-            cpf: Dados[5]
+            nome: Dados[0].trim(),
+            email: Dados[1].trim(),
+            cidade: Dados[2].trim(),
+            profissao: Dados[3].trim(),
+            idade: parseInt(Dados[4].trim()),
+            cpf: Dados[5].trim()
         };
         pessoas.push(pessoa);
     }
 }
+fs.writeFileSync("pessoas.txt", JSON.stringify(pessoas, null, 2), "utf8");
 // api
 app.get("/", (req, res) => {
     res.status(200).json({
@@ -70,7 +71,7 @@ app.delete("/pessoas/:cpf", (req, res) => {
         pessoa: pessoaRemovida
     });
 });
-// INICIAR SERVIDOR
+// inicia o servidor
 app.listen(3000, () => {
     console.log("Servidor rodando na porta 3000");
 });

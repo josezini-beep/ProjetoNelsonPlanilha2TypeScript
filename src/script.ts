@@ -49,6 +49,12 @@ for (let i = 1; i <= 10; i++) {
     }
 }
 
+fs.writeFileSync(
+    "pessoas.txt",
+    JSON.stringify(pessoas, null, 2),
+    "utf8"
+);
+
 // api
 
 app.get("/", (req, res) => {
