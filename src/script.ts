@@ -1,13 +1,14 @@
 import express = require("express");
 import fs = require("fs");
 
-    interface Pessoa {
+interface Pessoa {
     nome: string;
     email: string;
     cidade: string;
     profissao: string;
     idade: number;
-    cpf: string;}
+    cpf: string;
+}
 
 const app = express();
 
@@ -15,11 +16,8 @@ app.use(express.json());
 
 const pessoas: Pessoa[] = [];
 
-//le os arquivos
-
-
+// Lê os arquivos
 for (let i = 1; i <= 10; i++) {
-
     const conteudo: string = fs.readFileSync(
         `pessoas_${i}.csv`,
         "utf8"
@@ -27,22 +25,21 @@ for (let i = 1; i <= 10; i++) {
 
     const linhas: string[] = conteudo
         .trim()
-        .split(/\n?\r/);
+        .split(/\r?\n/);
 
-    // remove o cabeçalho
+    // Remove o cabeçalho
     linhas.shift();
 
     for (const linha of linhas) {
-
-        const Dados: string[] = linha.split(",");
+        const dados: string[] = linha.split(",");
 
         const pessoa: Pessoa = {
-            nome: Dados[0].trim(),
-            email: Dados[1].trim(),
-            cidade: Dados[2].trim(),
-            profissao: Dados[3].trim(),
-            idade: parseInt(Dados[4].trim()),
-            cpf: Dados[5].trim()
+            nome: dados[0].trim(),
+            email: dados[1].trim(),
+            cidade: dados[2].trim(),
+            profissao: dados[3].trim(),
+            idade: parseInt(dados[4].trim(), 10),
+            cpf: dados[5].trim()
         };
 
         pessoas.push(pessoa);
@@ -55,50 +52,36 @@ fs.writeFileSync(
     "utf8"
 );
 
-// api
-
-app.get("/pessoas/:cpf", (req, res) => {
-
+// Busca uma pessoa pelo CPF
+app.get("/pessoas/:cpf", function (req, res) {
     const cpf = req.params.cpf;
 
-    const pessoa = pessoas.find(pessoa => {
-        return pessoa.cpf === cpf;
-    });
-
-    if (!pessoa) {
-        return res.status(404).json({
-            mensagem: "Pessoa não encontrada"
-        });
+    for (let i = 0; i < pessoas.length; i++) {
+        if (pessoas[i].cpf === cpf) {
+            res.status(200).json(pessoas[i]);
+            return;
+        }
     }
 
-    res.status(200).json(pessoa);
+    res.status(404).json({
+        mensagem: "Pessoa não encontrada"
+    });
 });
 
-app.get("/", (req, res) => {
-
+// Rota inicial
+app.get("/", function (req, res) {
     res.status(200).json({
         mensagem: "API funcionando"
     });
-
 });
 
-
-
-// todas as pessoas
-
-app.get("/pessoas", (req, res) => {
-
+// Retorna todas as pessoas
+app.get("/pessoas", function (req, res) {
     res.status(200).json(pessoas);
-
 });
 
-
-
-// nova pessoa
-
-
-app.post("/pessoas", (req, res) => {
-
+// Cadastra uma nova pessoa
+app.post("/pessoas", function (req, res) {
     const novaPessoa: Pessoa = {
         nome: req.body.nome,
         email: req.body.email,
@@ -116,43 +99,80 @@ app.post("/pessoas", (req, res) => {
     });
 });
 
-// remover pessoa só pelo cpf
-
-
-app.delete("/pessoas/:cpf", (req, res) => {
-
+// Remove uma pessoa pelo CPF
+app.delete("/pessoas/:cpf", function (req, res) {
     const cpf = req.params.cpf;
+    let index = -1;
 
-    const index = pessoas.findIndex(pessoa => {
-        return pessoa.cpf === cpf;
-    });
-
-
-    if (index === -1) {
-
-        return res.status(404).json({
-            mensagem: "Pessoa não encontrada"
-        });
-
+    for (let i = 0; i < pessoas.length; i++) {
+        if (pessoas[i].cpf === cpf) {
+            index = i;
+            break;
+        }
     }
 
+    if (index === -1) {
+        res.status(404).json({
+            mensagem: "Pessoa não encontrada"
+        });
+        return;
+    }
 
     const pessoaRemovida = pessoas[index];
 
     pessoas.splice(index, 1);
 
-
     res.status(200).json({
         mensagem: "Pessoa removida com sucesso",
         pessoa: pessoaRemovida
     });
+});
+// atualiza uma pessoa pelo CPF
+app.patch("/pessoas/:cpf", function (req, res) {
+    const cpf = req.params.cpf;
+    let index = -1;
 
+    for (let i = 0; i < pessoas.length; i++) {
+        if (pessoas[i].cpf === cpf) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index === -1) {
+        res.status(404).json({
+            mensagem: "Pessoa não encontrada"
+        });
+        return;
+    }
+
+    if (req.body.nome !== undefined) {
+        pessoas[index].nome = req.body.nome;
+    }
+
+    if (req.body.email !== undefined) {
+        pessoas[index].email = req.body.email;
+    }
+
+    if (req.body.cidade !== undefined) {
+        pessoas[index].cidade = req.body.cidade;
+    }
+
+    if (req.body.profissao !== undefined) {
+        pessoas[index].profissao = req.body.profissao;
+    }
+
+    if (req.body.idade !== undefined) {
+        pessoas[index].idade = req.body.idade;
+    }
+
+    res.status(200).json({
+        mensagem: "Alteração realizada com sucesso",
+        pessoa: pessoas[index]
+    });
 });
 
-// inicia o servidor
-
-app.listen(3000, () => {
-
+// Inicia o servidor
+app.listen(3000, function () {
     console.log("Servidor rodando na porta 3000");
-
 });
