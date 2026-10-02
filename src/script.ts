@@ -90,6 +90,7 @@ app.post("/pessoas", function (req, res) {
         profissao,
         idade,
         cpf
+        // como eu vou grantir que oque esta vindo dentro do body da requisição é exatamente o que eu espero, ou seja, que seja do tipo Pessoa?
     } = req.body;
 
     if (
@@ -144,7 +145,7 @@ app.delete("/pessoas/:cpf", function (req, res) {
     const pessoaRemovida = pessoas[index];
 
     pessoas.splice(index, 1);
-
+    // ao invés de apagar este cara colocar um marcador como apagado
     res.status(200).json({
         mensagem: "Pessoa removida com sucesso",
         pessoa: pessoaRemovida
