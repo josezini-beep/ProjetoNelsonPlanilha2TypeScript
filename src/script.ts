@@ -82,13 +82,36 @@ app.get("/pessoas", function (req, res) {
 
 // Cadastra uma nova pessoa
 app.post("/pessoas", function (req, res) {
+
+    const {
+        nome,
+        email,
+        cidade,
+        profissao,
+        idade,
+        cpf
+    } = req.body;
+
+    if (
+        nome === undefined ||
+        email === undefined ||
+        cidade === undefined ||
+        profissao === undefined ||
+        idade === undefined ||
+        cpf === undefined
+    ) {
+        return res.status(400).json({
+            mensagem: "Todos os campos são obrigatórios"
+        });
+    }
+
     const novaPessoa: Pessoa = {
-        nome: req.body.nome,
-        email: req.body.email,
-        cidade: req.body.cidade,
-        profissao: req.body.profissao,
-        idade: req.body.idade,
-        cpf: req.body.cpf
+        nome: nome,
+        email: email,
+        cidade: cidade,
+        profissao: profissao,
+        idade: idade,
+        cpf: cpf
     };
 
     pessoas.push(novaPessoa);
