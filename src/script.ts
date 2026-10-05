@@ -127,7 +127,6 @@ app.post("/pessoas", function (req, res) {
 app.delete("/pessoas/:cpf", function (req, res) {
     const cpf = req.params.cpf;
     let index = -1;
-
     for (let i = 0; i < pessoas.length; i++) {
         if (pessoas[i].cpf === cpf) {
             index = i;
@@ -151,7 +150,7 @@ app.delete("/pessoas/:cpf", function (req, res) {
         pessoa: pessoaRemovida
     });
 });
-// atualiza uma pessoa pelo CPF
+    // atualiza uma pessoa pelo CPF
 app.patch("/pessoas/:cpf", function (req, res) {
     const cpf = req.params.cpf;
     let index = -1;
